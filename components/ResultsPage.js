@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {
   StyleSheet,
   View,
@@ -8,20 +8,33 @@ import {
   FlatList,
   RefreshControl,
 } from 'react-native';
-import data from "../assets/ResultsData";
 import ResultField from "./ResultField";
+import { shuffle } from 'lodash';
+import { ScrollView } from "react-native-gesture-handler";
 
 const ResultsPage = () => {
-  let results = data;
   const [refresh, setRefresh] = useState(false);
+  const [results, setResults] = useState([]);
 
   const onRefresh = () => {
     setRefresh(true);
-    data = results;
+    getResults();
     setRefresh(false);
   }
 
-  const renderItem = ({item}) => <ResultField nick={item.nick} points={item.points} type={item.type} date={item.date}/>
+  const getResults = () => {
+    fetch('https://tgryl.pl/quiz/results')
+      .then((response) => response.json())
+      .then((json) => {
+        setResults(json)
+      })
+  }
+
+  useEffect(() => {
+    getResults();
+  }, []);
+
+  const renderItem = ({item}) => <ResultField nick={item.nick} points={item.score} type={item.type} total={item.total} date={item.createdOn}/>
 
   return (
     <View style={styles.viewResultsContent}>
@@ -48,7 +61,7 @@ const ResultsPage = () => {
         <FlatList
           data={results}
           renderItem={renderItem}
-          keyExtractor={item => item.nick}
+          keyExtractor={item => item.id}
           refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh}/>}
         />
       </View>

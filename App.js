@@ -7,7 +7,7 @@
  * @flow strict-local
  */
 
-import * as React from 'react';
+import React, {useState, useEffect} from "react";
 import type {Node} from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
@@ -20,18 +20,43 @@ import HomePage from './components/HomePage';
 import TestPage from './components/TestPage';
 import ResultsPage from './components/ResultsPage';
 import Statute from './components/Statute';
+import EndTestPage from './components/EndTestPage';
 
 const Drawer = createDrawerNavigator();
 
 const App: () => Node = () => {
+  const [tests, setTests] = useState([]);
+  const [testGetFrom, setTestGetFrom] = useState(false);
+
+  useEffect(() => {
+      getTests();
+  }, []);
+
+  const getTests = () => {
+    setTestGetFrom(prev => !prev);
+    fetch('https://tgryl.pl/quiz/tests')
+      .then(response => response.json())
+      .then(json => {
+        setTests(json);
+        setTestGetFrom(true);
+      });
+  };
 
   return (
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Home Page">
           <Drawer.Screen name="Home Page" component={HomePage} />
-          <Drawer.Screen name="Test Page" component={TestPage} />
+          {tests.map(test => (
+            <Drawer.Screen
+              name={test.name}
+              component={TestPage}
+              initialParams={{id: test.id}}
+              key={test.id}
+            />
+          ))}
           <Drawer.Screen name="Results Page" component={ResultsPage} />
           <Drawer.Screen name="Statute" component={Statute} options={{drawerItemStyle: {display: 'none'}}}/>
+          <Drawer.Screen name="Test Overview" component={EndTestPage} options={{drawerItemStyle: {display: 'none'}}}/>
         </Drawer.Navigator>
       </NavigationContainer>
   );

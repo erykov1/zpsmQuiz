@@ -6,12 +6,12 @@ import {
   Text,
 } from 'react-native';
 
-const ResultField = ({nick, points, type, date}) => {
+const ResultField = ({nick, points, type, total, date}) => {
 
   return (
     <View style={styles.viewResults}>
       <Text style={styles.textResults}> {nick} </Text>
-      <Text style={styles.textResults}> {points} </Text>
+      <Text style={styles.textResults}> {points} / {total} </Text>
       <Text style={styles.textResults}> {type} </Text>
       <Text style={styles.textResults}> {date} </Text>
     </View>
